@@ -210,14 +210,14 @@ def cargarCSS():
     # Inyección de estilos CSS
     st.markdown("""
         <style>
-        div[data-testid="stToolbar"] { display: none !important; }
-        
         header[data-testid="stHeader"] {
             background-color: #1A1C24 !important;
             border-bottom: 1px solid #00CC96 !important;
             height: 3.5rem !important;
             display: flex !important;
             align-items: center !important;
+            justify-content: flex-start !important;
+            position: relative !important;
         }
         div[data-testid="stToolbar"] {
             position: absolute !important;
@@ -227,11 +227,11 @@ def cargarCSS():
         header[data-testid="stHeader"]::after {
             content: "Instituto Superior Domingo Guzman Silva";
             color: #ffffff !important;
-            font-size: 1.8rem !important;
+            font-size: 1.5rem !important;
             font-weight: 600 !important;
-            margin-left: 130px !important;
-            z-index: 2 !important;
+            margin-left: 140px !important;
             white-space: nowrap;
+            z-index: 2 !important;
         }
         img[data-testid="stLogo"] {
             position: fixed !important;
@@ -241,6 +241,12 @@ def cargarCSS():
             width: auto !important;
             z-index: 999999 !important;
         }
+        section[data-testid="stSidebar"] {
+            background-color: #1A1C24 !important;
+        }
+        section[data-testid="stSidebar"] > div {
+            background-color: #1A1C24 !important;
+        }
         section[data-testid="stSidebar"] img[data-testid="stLogo"] {
             position: static !important;
             height: 5rem !important;
@@ -248,6 +254,13 @@ def cargarCSS():
             margin-top: 0px !important;
             margin-bottom: 15px !important;
             margin-left: 90px !important;
+        }
+        [data-testid="collapsedControl"] {
+            display: block !important;
+            z-index: 999999 !important;
+        }
+        [data-testid="collapsedControl"] svg {
+            fill: #00CC96 !important;
         }
         .custom-card {
             padding: 20px;
