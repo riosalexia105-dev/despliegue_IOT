@@ -2,14 +2,6 @@ import streamlit as st
 import utilidades as util
 
 util.cargarCSS()
-util.generarMenu()
-
-st.logo(
-    "lg.png",
-    link="https://monitoreo-ambiental-iot.streamlit.app/",
-    size="large",
-    icon_image="logo.png",
-)
 
 microcontroladores = [
     "ESP32_preceptoria",
