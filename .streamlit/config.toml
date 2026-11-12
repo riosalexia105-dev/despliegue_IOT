@@ -3,5 +3,6 @@ showSidebarNavigation = true
 toolbarMode = "minimal"
 
 [theme]
+textColor = "#FFFFFF"
 backgroundColor = "#1A1C24"
 secondaryBackgroundColor = "#222634"
