@@ -1,6 +1,13 @@
 import streamlit as st
 import utilidades as util
 
+st.set_page_config(
+    page_title="Monitoreo Ambiental IoT",
+    page_icon="🌡️",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
 util.cargarCSS()
 util.generarMenu()
 
