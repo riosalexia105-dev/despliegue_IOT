@@ -4,14 +4,6 @@ import pandas as pd
 import utilidades as util
 
 util.cargarCSS()
-util.generarMenu()
-
-st.logo(
-    "lg.png",
-    link="https://monitoreo-ambiental-iot.streamlit.app/",
-    size="large",
-    icon_image="logo.png",
-)
 
 st.subheader("🌤️ Pronóstico del Tiempo Extendido (7 Días)")
 
