@@ -8,18 +8,10 @@ import plotly.express as px
 import utilidades as util
 import streamlit.components.v1 as components
 
-st.logo(
-    "lg.png",
-    link="https://monitoreo-ambiental-iot.streamlit.app/",
-    size="large",
-    icon_image="logo.png"
-)
-
 # Asegurar importación de utilidades.py desde la subcarpeta pages/
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Menú lateral unificado
-util.generarMenu()
 util.cargarCSS()
 
 st.title("🌊 Nivel e Hidrología de Ríos - Santa Fe")
