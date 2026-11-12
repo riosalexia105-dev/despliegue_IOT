@@ -4,8 +4,12 @@ import pandas as pd
 from supabase import create_client
 import plotly.graph_objects as go
 from datetime import datetime
+import json
+import numpy as np
+import logging
 import paho.mqtt.client as mqtt
 import requests
+log = logging.getLogger(__name__)
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"  # API para pronósticos
 RIOS_URL = "https://flood-api.open-meteo.com/v1/flood?latitude=-31.6488&longitude=-60.7087&daily=river_discharge,river_discharge_median,river_discharge_mean,river_discharge_max,river_discharge_min&past_days=7&forecast_days=7"
@@ -36,7 +40,10 @@ def iniciar_servicios():
 
     client_supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     
-    # Configurar y arrancar el cliente MQTT para escuchar HiveMQ en segundo plano
+    def on_connect(client, userdata, flags, rc, properties=None):
+        log.info(f"MQTT conectado, rc={rc}")
+        client.subscribe(MQTT_TOPIC)
+
     def on_message(client, userdata, msg):
         try:
             payload = json.loads(msg.payload.decode())
@@ -45,24 +52,20 @@ def iniciar_servicios():
                 "Humedad": float(payload.get("Humedad", 0.0)),
                 "Presion": float(payload.get("Presion", 0.0)),
                 "Fecha": payload.get("Fecha", datetime.now().isoformat()),
-                "Gas-Ppm": float(payload.get("Gas-Ppm", 0.0))
+                "Gas-Ppm": float(payload.get("Gas-Ppm", 0.0)),
             }
-            #Inserta automaticamente lo recibido a Supabase
-            client_supabase.table("Lecturas").insert(data).execute()
-        except Exception as e:
-            print(f"Error procesando mensaje MQTT: {e}")
+            res = client_supabase.table("Lecturas").insert(data).execute()
+            log.info(f"Insertado: {res.data}")
+        except Exception:
+            log.exception("Error procesando mensaje MQTT")
 
-    try:
-        client_mqtt = mqtt.Client()
-        client_mqtt.username_pw_set(MQTT_USER, MQTT_PASS)
-        client_mqtt.tls_set()  #Habilita seguridad TLS requerida por HiveMQ Cloud
-        client_mqtt.on_message = on_message
-        client_mqtt.connect(MQTT_BROKER, MQTT_PORT, 60)
-        client_mqtt.subscribe(MQTT_TOPIC)
-        client_mqtt.loop_start()  #Mantiene el hilo escuchando en segundo plano
-    except Exception as e:
-        print(f"No se pudo inicializar la conexión MQTT: {e}")
-
+    client_mqtt = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)  # paho 2.x
+    client_mqtt.username_pw_set(MQTT_USER, MQTT_PASS)
+    client_mqtt.tls_set()
+    client_mqtt.on_connect = on_connect
+    client_mqtt.on_message = on_message
+    client_mqtt.connect(MQTT_BROKER, MQTT_PORT, 60)
+    client_mqtt.loop_start()
     return client_supabase
 
 client_supabase = iniciar_servicios()
