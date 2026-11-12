@@ -210,6 +210,8 @@ def cargarCSS():
     # Inyección de estilos CSS
     st.markdown("""
         <style>
+        div[data-testid="stToolbar"] { display: none !important; }
+        
         header[data-testid="stHeader"] {
             background-color: #1A1C24 !important;
             border-bottom: 1px solid #00CC96 !important;
@@ -217,12 +219,18 @@ def cargarCSS():
             display: flex !important;
             align-items: center !important;
         }
+        div[data-testid="stToolbar"] {
+            position: absolute !important;
+            right: 15px !important;
+            z-index: 1 !important;
+        }
         header[data-testid="stHeader"]::after {
             content: "Instituto Superior Domingo Guzman Silva";
             color: #ffffff !important;
             font-size: 1.8rem !important;
             font-weight: 600 !important;
-            margin-left: 0px !important;
+            margin-left: 130px !important;
+            z-index: 2 !important;
             white-space: nowrap;
         }
         img[data-testid="stLogo"] {
