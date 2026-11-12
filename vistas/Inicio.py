@@ -76,5 +76,5 @@ def main():
             st.dataframe(df_datos, use_container_width=True, hide_index=False)
         else:
             st.info("Por favor, selecciona una opción para cargar los datos.")
-    
-    main()
+
+main()
