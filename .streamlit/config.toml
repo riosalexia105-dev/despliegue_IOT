@@ -1,3 +1,7 @@
-[sidebar]
+[client]
 showSidebarNavigation = true
 toolbarMode = "minimal"
+
+[theme]
+backgroundColor = "#1A1C24"
+secondaryBackgroundColor = "#222634"
