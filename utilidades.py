@@ -5,7 +5,9 @@ from supabase import create_client
 import plotly.graph_objects as go
 from datetime import datetime
 import json
+from datetime import timedelta
 import numpy as np
+
 import logging
 import paho.mqtt.client as mqtt
 import requests
@@ -15,6 +17,9 @@ FORECAST_URL = "https://api.open-meteo.com/v1/forecast"  # API para pronósticos
 RIOS_URL = "https://flood-api.open-meteo.com/v1/flood?latitude=-31.6488&longitude=-60.7087&daily=river_discharge,river_discharge_median,river_discharge_mean,river_discharge_max,river_discharge_min&past_days=7&forecast_days=7"
 SUPABASE_URL = ""
 SUPABASE_KEY = ""
+
+WFS_URL = "https://alerta.ina.gob.ar/geoserver/ows"
+ESTACION_SANTA_FE = 30  # unid de Santa Fe (alturas_prefe)
 
 # Coordenadas de Santa Fe Capital (Paraná/Salado)
 LATITUDE = -31.6333
@@ -208,7 +213,6 @@ def generarMenu():
         st.page_link("vistas/Pronostico.py", label="Pronostico Semanal", icon=":material/partly_cloudy_day:")
         st.page_link("vistas/admin_dashboard.py", label="Administrador", icon=":material/supervisor_account:")
         
-
 def cargarCSS():
     # Inyección de estilos CSS
     st.markdown("""
@@ -349,3 +353,65 @@ def crear_gauge(valor_actual):
     ))
     fig_gas.update_layout(template='plotly_dark', margin=dict(t=50, b=20, l=20, r=20), height=300)
     return fig_gas
+
+@st.cache_data(ttl=1800)
+def obtener_altura_santafe(dias: int = 7):
+    """Devuelve (info: dict, serie: DataFrame) o lanza excepción."""
+    hoy = datetime.utcnow().date()
+    ini = hoy - timedelta(days=dias)
+    fin = hoy + timedelta(days=1)
+
+    params = {
+        "service": "WFS",
+        "version": "1.0.0",
+        "request": "GetFeature",
+        "typeName": "public2:ultimas_alturas_con_timeseries",
+        "viewParams": f"timeStart:{ini};timeEnd:{fin};",
+        "maxFeatures": 500,
+        "outputFormat": "application/json",
+    }
+    r = requests.get(WFS_URL, params=params, timeout=20,
+                     headers={"User-Agent": "monitoreo-ambiental-iot"})
+    r.raise_for_status()
+
+    feats = r.json().get("features", [])
+    f = next(
+        (x["properties"] for x in feats
+         if x["properties"].get("unid") == ESTACION_SANTA_FE
+         and x["properties"].get("tabla") == "alturas_prefe"),
+        None,
+    )
+    if f is None:
+        raise ValueError("Estación Santa Fe (unid 30) no encontrada en la respuesta")
+
+    puntos = json.loads(f["timeseries"])          # [["2026-11-05T03:00:00.000Z","4.58"], ...]
+    serie = pd.DataFrame(puntos, columns=["Fecha", "Altura (m)"])
+    serie["Fecha"] = (pd.to_datetime(serie["Fecha"], utc=True)
+                        .dt.tz_convert("America/Argentina/Buenos_Aires")
+                        .dt.tz_localize(None))
+    serie["Altura (m)"] = serie["Altura (m)"].astype(float)
+
+    info = {
+        "altura": f["valor"],
+        "anterior": f["valor_precedente"],
+        "variacion": round(f["valor"] - f["valor_precedente"], 2),
+        "tendencia": f["tendencia"],
+        "estado": f["estado"],
+        "alerta": round(f["nivel_de_alerta"], 2),
+        "evacuacion": round(f["nivel_de_evacuacion"], 2),
+        "aguas_bajas": f.get("nivel_de_aguas_bajas"),
+        "fecha": pd.to_datetime(f["fecha"], utc=True)
+                   .tz_convert("America/Argentina/Buenos_Aires")
+                   .tz_localize(None),
+    }
+    return info, serie
+    r = requests.get(f"{BASE}/", headers=HEADERS, timeout=10,
+                     params={"page": "historico", "tiempo": dias, "id": cod})
+    r.raise_for_status()
+    tablas = pd.read_html(StringIO(r.text))   # ValueError si no hay <table>
+    df = tablas[0]
+    # Ajusta estos nombres a lo que muestre st.write(df.head()):
+    df.columns = ["Fecha", "Altura (m)"] + list(df.columns[2:])
+    df["Fecha"] = df["Fecha"].map(_fecha)
+    df["Altura (m)"] = df["Altura (m)"].map(_num)
+    return df.dropna().sort_values("Fecha")
