@@ -201,18 +201,15 @@ def obtener_datos_hidro():
 def generarMenu():
     with st.sidebar:
         st.page_link("app.py", label="Monitoreo Ambiental", icon=":material/thermostat:")
-        st.page_link("pages/informe_rios.py", label="Informes de Ríos", icon=":material/waves:")
-        st.page_link("pages/Pronostico.py", label="Pronostico Semanal", icon=":material/partly_cloudy_day:")
-        st.page_link("pages/admin_dashboard.py", label="Administrador", icon=":material/supervisor_account:")
+        st.page_link("vistas/informe_rios.py", label="Informes de Ríos", icon=":material/waves:")
+        st.page_link("vistas/Pronostico.py", label="Pronostico Semanal", icon=":material/partly_cloudy_day:")
+        st.page_link("vistas/admin_dashboard.py", label="Administrador", icon=":material/supervisor_account:")
         
 
 def cargarCSS():
     # Inyección de estilos CSS
     st.markdown("""
         <style>
-        div[data-testid="stToolbar"] {
-            display: none !important;
-        }
         header[data-testid="stHeader"] {
             background-color: #1A1C24 !important;
             border-bottom: 1px solid #00CC96 !important;
