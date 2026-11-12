@@ -236,8 +236,8 @@ def cargarCSS():
         img[data-testid="stLogo"] {
             position: fixed !important;
             top: 5px !important;
-            left: 65px !important;
-            height: 2.5rem !important;
+            margin-left: 50px;
+            height: 3rem !important;
             width: auto !important;
             z-index: 999999 !important;
         }
