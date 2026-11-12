@@ -27,12 +27,12 @@ pagina_pronostico = st.Page(
 
 pagina_rios = st.Page(
     "vistas/informe_rios.py", 
-    title="Visualización de Graficos", 
+    title="Informes de Ríos", 
     icon=":material/waves:"
 )
 
 pagina_admin = st.Page(
-    "vistas/Admin.py", 
+    "vistas/admin_dashboard.py", 
     title="Dashboard admin", 
     icon=":material/supervisor_account:"
 )
