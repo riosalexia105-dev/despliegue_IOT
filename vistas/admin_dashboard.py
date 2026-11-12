@@ -52,7 +52,7 @@ else:
         st.rerun()
 
     st.title("Panel de Control")
-    st.write("Bienvenido al área de administración.")
+    st.write("Bienvenido al area de administracion.")
 
     st.write(f"Valores de sala: {microcontroladores[1]}")
     df_ultimo_vivo = util.obtener_ultimo()
@@ -94,6 +94,14 @@ else:
             unsafe_allow_html=True,
         )
 
+        try:
+            info, serie = util.obtener_altura_santafe(7)
+        except Exception as e:
+            st.error("No se pudieron obtener los datos del INA. Intenta de nuevo en unos minutos.")
+            with st.expander("Detalle tecnico"):
+                st.exception(e)
+            st.stop()
+
         col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
             st.metric(label="Temperatura", value=f"{penultimo['Temperatura']} C°", delta=deltaTemp)
@@ -104,12 +112,16 @@ else:
         with col4:
             st.metric(label="Gas-Ppm", value=f"{penultimo['Gas-Ppm']} PPM", delta=int(deltaGas))
         with col5:
-            estado = (
-                "NORMAL"
-                if altura_estimada < 4.3
-                else ("ALERTA" if altura_estimada < 5.3 else "EVACUACIÓN")
-            )
-            st.metric(label="⚠️ Estado Hidrométrico", value=estado, delta=f"{round(variacion / 3500, 2):+} m")
+            st.metric("📏 Altura actual", f"{info['altura']:.2f} m", f"{info['variacion']:+.2f} m")
+
+        #Estado
+        estado = info["estado"].upper()
+        if estado.startswith("EVAC"):
+            st.error(f"🚨 EVACUACIÓN: el rio supero {info['evacuacion']} m")
+        elif estado.startswith("ALERTA"):
+            st.warning(f"⚠️ ALERTA: el rio supero {info['alerta']} m")
+        else:
+            st.success("✅ Nivel normal")
     else:
         st.warning("No hay lecturas en tiempo real disponibles.")
 
