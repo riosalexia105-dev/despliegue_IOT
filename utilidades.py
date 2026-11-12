@@ -210,6 +210,9 @@ def cargarCSS():
     # Inyección de estilos CSS
     st.markdown("""
         <style>
+        div[data-testid="stToolbar"] {
+            display: none !important;
+        }
         header[data-testid="stHeader"] {
             background-color: #1A1C24 !important;
             border-bottom: 1px solid #00CC96 !important;
