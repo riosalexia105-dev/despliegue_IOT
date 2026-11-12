@@ -222,7 +222,7 @@ def cargarCSS():
             color: #ffffff !important;
             font-size: 1.8rem !important;
             font-weight: 600 !important;
-            margin-left: 130px !important;
+            margin-left: 0px !important;
             white-space: nowrap;
         }
         img[data-testid="stLogo"] {
